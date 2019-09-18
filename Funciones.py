@@ -13,30 +13,34 @@ def Probabilidad():
 
 
 # Poblacion
-def cadenaN(numerolimite):
-    x = [i for i in range(1, numerolimite)]
+def cadenaN(numerolimite,origen):
+    x = [i for i in range(0, numerolimite)]
     shuffle(x)
+    for i in range(numerolimite):
+        if x[i] == origen :
+            ap=i
+    po = x[0]
+    pno = x[ap]
+    x[ap] = po
+    x[origen] = pno
+    x.append(x[origen])
     return x
 
 
 # Valoracion
-def valoracion(Matriz, np, nr):
+def valoracion(Matriz, np, nr, LC):
     Valor = []
     contador = 0
     for m in range(np):
         matriz = Matriz[m]
+        i = 1
         for i in range(nr):
-            oi = matriz[i]
-            for j in range(nr):
-                oj = matriz[j]
-                if (i != j):
-                    _v1 = math.fabs(oi - oj)
-                    _v2 = math.fabs(i - j)
-                    if (_v1 == _v2):
-                        contador = contador + 1
-        contador = round(contador / 2, 0)
+            n = matriz[i]
+            n1 = matriz[i-1]
+            r = round(math.sqrt((LC[n][0]-LC[n1][0])**2+(LC[n][1]-LC[n1][1])**2),2)
+            contador = contador+r
         Valor.append(contador)
-        contador = contador * 0
+        contador = contador*0
     return Valor
 
 
@@ -63,12 +67,19 @@ def torneo(valores, poblacion):
 
 
 # cruse
-def cruse(Ganadores, matriz, nr):
+def cruse(Ganadores, matriz, nr, origen):
+    nr = nr+1
     hijos = []
     hijo = []
     Ganadores[0] = Ganadores[0] - 1
     Ganadores[1] = Ganadores[1] - 1
     a1 = random.randrange(1, nr)
+    ba1 = True
+    while(ba1):
+        if a1 == 0 or a1 == nr:
+            a1 = random.randrange(1, nr)
+        else:
+            ba1 = False
     # print('Alelo donde se segmenta: ',a1)
     ax1 = a1
     for j in range(2):
@@ -85,6 +96,7 @@ def cruse(Ganadores, matriz, nr):
                 if (a == 0):
                     hijo.insert(ax1, matriz[Ganadores[0]][m])
                 ax1 = ax1 + 1
+        hijo.append(origen)
         hijos.append(hijo)
         hijo = hijo * 0
         ax1 = a1
@@ -93,8 +105,21 @@ def cruse(Ganadores, matriz, nr):
 
 # mutacion
 def mutacion_un_hijo(hijo, nr):
+    nr = nr+1
     r1 = random.randrange(nr)
     r2 = random.randrange(nr)
+    br1 = True
+    while(br1):
+        if r1 == 0 or r1 == nr:
+            r1 = random.randrange(nr)
+        else:
+            br1 = False
+    br2 = True
+    while(br2):
+        if r2 == 0 or r2 == nr:
+            r2 = random.randrange(nr)
+        else:
+            br2 = False
     G1 = hijo[r1]
     G2 = hijo[r2]
     hijo[r1] = G2
@@ -103,7 +128,7 @@ def mutacion_un_hijo(hijo, nr):
 
 
 # seleccion
-def seleccion(padres, hijos, matriz, nr):
+def seleccion(padres, hijos, matriz, nr,lc):
     # Insertar padres e hijos a individuos
     padres[0] = padres[0] - 1
     padres[1] = padres[1] - 1
@@ -111,7 +136,7 @@ def seleccion(padres, hijos, matriz, nr):
     individuo = hijos
     for i in range(2):
         individuo.append(matriz[padres[i]])
-    valor = valoracion(individuo, 4, nr)  # Fitness
+    valor = valoracion(individuo, 4, nr, lc)  # Fitness
     # Se busca al ganador
     ganador = 0
     contador = 0
