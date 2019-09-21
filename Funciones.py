@@ -3,10 +3,7 @@ import random
 import math
 
 
-# Probabilidad
-from typing import List, Any, Union
-
-
+# Probabilida
 def Probabilidad():
     ra = round(random.random(), 2)
     return ra

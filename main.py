@@ -10,7 +10,7 @@ class Aplicacion():  # creacion de la ventana
         self.raiz = Tk()
         self.raiz.geometry('400x320')
         self.raiz.configure(bg='beige')
-        self.raiz.title('Aplicación')
+        self.raiz.title('El problema del agente Viajero')
         # ------------------pestañas------------------------------
         tab_control = ttk.Notebook(self.raiz)
         tab1 = ttk.Frame(tab_control)
@@ -112,10 +112,13 @@ class Aplicacion():  # creacion de la ventana
         start_time = time()
         for m in range(poblacion):
             # agregar comentario
-            Matriz.append(Funciones.cadenaN(nr + 1,0))
+            Matriz.append(Funciones.cadenaN(nr + 1, 0))
         for i in range(poblacion):
             print("Individuo", (i + 1), ": ", Matriz[i])
-        for secuencia in range(re):
+        #for secuencia in range(re):
+        B = True
+        secuencia = 0
+        while(B):
             print("Repeticion ", secuencia + 1)
             Fitnes = (Funciones.valoracion(Matriz, poblacion, nr,listaciudades))
             axx = Fitnes.count(0)
@@ -138,17 +141,26 @@ class Aplicacion():  # creacion de la ventana
             else:
                 for hm in range(2):
                     hijos[hm] = Funciones.mutacion_un_hijo(hijos[hm], nr)
-            Matriz = Funciones.seleccion(Ganadores,hijos,Matriz,nr,listaciudades)
+            Matriz = Funciones.seleccion(Ganadores, hijos, Matriz, nr, listaciudades)
+            fp = 0
+            for i in range(poblacion):
+                if Fitnes[fp] > Fitnes[i]:
+                    fp = i
+            if Fitnes[fp] <= 14:
+                B = False
+            secuencia = secuencia+1
+            print(Fitnes[fp])
         elapsed_time = time() - start_time
         print("-------------------------Fin-----------------------------------")
         Fitnes = (Funciones.valoracion(Matriz, poblacion, nr,listaciudades))
         Ganador = 0
         libro = open('Ganadores.txt', 'a')
+        print("Repeticiones: ", secuencia)
         for i in range(poblacion):
             print("Individuo", (i + 1), ": ", Matriz[i], "Fitnes :", Fitnes[i])
-            if (Fitnes[Ganador] > Fitnes[i]):
+            if Fitnes[Ganador] > Fitnes[i]:
                 Ganador = i
-            if (Fitnes[i] == 0):
+            if Fitnes[i] == 0:
                 parrafo = "Inividuo", (i + 1), ": ", Matriz[i], "Fitness: ", Fitnes[i]
                 parrafo = str(parrafo)
                 libro.write('\n' + parrafo)
