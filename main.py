@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import *  # Carga módulo tk (widgets estándar)
 from tkinter import ttk  # Carga ttk (para widgets nuevos 8.5+)
 from time import time
+
+from pip._vendor.distlib.compat import raw_input
 import Funciones
 
 
@@ -25,7 +27,7 @@ class Aplicacion():  # creacion de la ventana
         self.mensajePO.pack()
         self.mensajeRE = Label(tab1, text="Numero de Repeticiones", fg="black")
         self.mensajeRE.pack()
-        self.mensajePC = Label(tab1, text="Probabilidad de cruse", fg="black")
+        self.mensajePC = Label(tab1, text="Probabilidad de cruce", fg="black")
         self.mensajePC.pack()
         self.PM = Label(tab1, text="Probabilidad de Mutacion", fg="black")
         self.PM.pack()
@@ -51,7 +53,7 @@ class Aplicacion():  # creacion de la ventana
         self.PM.place(x=10, y=100)
         self.caja_PM.place(x=160, y=100)
         # ------------------------Valores estaticos------------------
-        self.caja_NC.insert(0, 8)
+        self.caja_NC.insert(0, 13)
         self.caja_PO.insert(0, 1000)
         self.caja_RE.insert(0, 1000)
         self.caja_PC.insert(0, 0.85)
@@ -105,7 +107,7 @@ class Aplicacion():  # creacion de la ventana
         poblacion = int(self.caja_PO.get())
         nr = int(self.caja_NC.get())
         re = int(self.caja_RE.get())
-        proCruse = float(self.caja_PC.get())
+        procruce = float(self.caja_PC.get())
         proMutacion = float(self.caja_PM.get())
         Matriz = []
         Ganadores = []
@@ -124,7 +126,7 @@ class Aplicacion():  # creacion de la ventana
             axx = Fitnes.count(0)
             Ganadores = (Funciones.torneo(Fitnes, poblacion))
             probCruce = Funciones.Probabilidad()
-            if (probCruce > proCruse):
+            if (probCruce > procruce):
                 hijos = []
                 # print("hijos igual a los padres")
                 Ganadores[0] = Ganadores[0] - 1
@@ -133,7 +135,7 @@ class Aplicacion():  # creacion de la ventana
                     hij = Matriz[Ganadores[hj]]
                     hijos.append(hij)
             else:
-                hijos = Funciones.cruse(Ganadores, Matriz, nr, 0)
+                hijos = Funciones.cruce(Ganadores, Matriz, nr, 0)
             probMutacion = Funciones.Probabilidad()
             if (probMutacion > proMutacion):
                 # print("sin mutacion")
@@ -143,19 +145,27 @@ class Aplicacion():  # creacion de la ventana
                     hijos[hm] = Funciones.mutacion_un_hijo(hijos[hm], nr)
             Matriz = Funciones.seleccion(Ganadores, hijos, Matriz, nr, listaciudades)
             fp = 0
+            lim = re
+            res = 0
             for i in range(poblacion):
                 if Fitnes[fp] > Fitnes[i]:
                     fp = i
             if Fitnes[fp] <= 14:
                 B = False
+            if secuencia == lim:
+                res = int(raw_input('Detener ahora? si = 1 no = 2 '))
+            if res == 1:
+                B = False
+            if res == 2:
+                lim = lim * 2
+                res = 0
             secuencia = secuencia+1
-            print(Fitnes[fp])
+            print('Menor Distancia: ',Fitnes[fp])
         elapsed_time = time() - start_time
         print("-------------------------Fin-----------------------------------")
         Fitnes = (Funciones.valoracion(Matriz, poblacion, nr,listaciudades))
         Ganador = 0
         libro = open('Ganadores.txt', 'a')
-        print("Repeticiones: ", secuencia)
         for i in range(poblacion):
             print("Individuo", (i + 1), ": ", Matriz[i], "Fitnes :", Fitnes[i])
             if Fitnes[Ganador] > Fitnes[i]:
@@ -173,6 +183,7 @@ class Aplicacion():  # creacion de la ventana
         print("Ganador: ", Matriz[Ganador], "Fitness: ", Fitnes[Ganador])
         p = "Ganador: ", Matriz[Ganador], "Fitness: ", Fitnes[Ganador]
         p = str(p)
+        print("Repeticiones: ", secuencia)
         self.mensajeLT = Label(self.raiz, text="Lapso de tiempo: %.10f segundos." % elapsed_time, fg="black")
         self.mensajeLT.pack()
         self.mensajeG = Label(self.raiz, text=p, fg="black")

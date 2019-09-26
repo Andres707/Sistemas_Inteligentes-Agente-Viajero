@@ -31,9 +31,9 @@ def valoracion(Matriz, np, nr, LC):
     for m in range(np):
         matriz = Matriz[m]
         i = 1
-        for i in range(nr):
+        for i in range(nr+1):
             n = matriz[i]
-            n1 = matriz[i-1]
+            n1 = matriz[i+1]
             r = round(math.sqrt((LC[n][0]-LC[n1][0])**2+(LC[n][1]-LC[n1][1])**2),2)
             contador = contador+r
         Valor.append(contador)
@@ -63,8 +63,8 @@ def torneo(valores, poblacion):
     return Ganadores
 
 
-# cruse
-def cruse(Ganadores, matriz, nr, origen):
+# cruce
+def cruce(Ganadores, matriz, nr, origen):
     nr = nr+1
     hijos = []
     hijo = []
