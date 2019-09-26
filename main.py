@@ -5,6 +5,7 @@ from time import time
 
 from pip._vendor.distlib.compat import raw_input
 import Funciones
+import grficar
 
 
 class Aplicacion():  # creacion de la ventana
@@ -119,7 +120,12 @@ class Aplicacion():  # creacion de la ventana
             print("Individuo", (i + 1), ": ", Matriz[i])
         #for secuencia in range(re):
         B = True
+        # ----------
         secuencia = 0
+        fp = 0
+        lim = re
+        res = 0
+        diferente = 100
         while(B):
             print("Repeticion ", secuencia + 1)
             Fitnes = (Funciones.valoracion(Matriz, poblacion, nr,listaciudades))
@@ -144,9 +150,7 @@ class Aplicacion():  # creacion de la ventana
                 for hm in range(2):
                     hijos[hm] = Funciones.mutacion_un_hijo(hijos[hm], nr)
             Matriz = Funciones.seleccion(Ganadores, hijos, Matriz, nr, listaciudades)
-            fp = 0
-            lim = re
-            res = 0
+            # __________________ OSKAR CHECK ----------------------
             for i in range(poblacion):
                 if Fitnes[fp] > Fitnes[i]:
                     fp = i
@@ -161,6 +165,10 @@ class Aplicacion():  # creacion de la ventana
                 res = 0
             secuencia = secuencia+1
             print('Menor Distancia: ',Fitnes[fp])
+            if diferente > Fitnes[fp]:
+                diferente = Fitnes[fp]
+                grficar.Graficar(listaciudades, Matriz[fp])
+
         elapsed_time = time() - start_time
         print("-------------------------Fin-----------------------------------")
         Fitnes = (Funciones.valoracion(Matriz, poblacion, nr,listaciudades))
