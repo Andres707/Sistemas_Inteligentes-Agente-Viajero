@@ -14,31 +14,30 @@ def cadenaN(numerolimite,origen):
     x = [i for i in range(0, numerolimite)]
     shuffle(x)
     for i in range(numerolimite):
-        if x[i] == origen:
-            ap = i
-    puntorigen = x[0]
-    puntofin = x[ap]
-    x[ap] = puntorigen
-    x[origen] = puntofin
+        if x[i] == origen :
+            ap=i
+    po = x[0]
+    pno = x[ap]
+    x[ap] = po
+    x[origen] = pno
     x.append(x[origen])
     return x
 
 
 # Valoracion
-def valoracion(poblacion, NumeroPoblacion, NumeroAlelos, Lista):
+def valoracion(Matriz, np, nr, LC):
     Valor = []
     contador = 0
-    for m in range(NumeroPoblacion):
-        matriz = poblacion[m]
+    for m in range(np):
+        matriz = Matriz[m]
         i = 1
-        for i in range(NumeroAlelos + 1):
+        for i in range(nr+1):
             n = matriz[i]
-            n1 = matriz[i + 1]
-            r = round(math.sqrt((Lista[n][0] - Lista[n1][0]) ** 2 +
-                                (Lista[n][1] - Lista[n1][1]) ** 2), 2)
-            contador = contador + r
+            n1 = matriz[i+1]
+            r = round(math.sqrt((LC[n][0]-LC[n1][0])**2+(LC[n][1]-LC[n1][1])**2),2)
+            contador = contador+r
         Valor.append(contador)
-        contador = contador * 0
+        contador = contador*0
     return Valor
 
 
@@ -49,15 +48,15 @@ def torneo(valores, poblacion):
         a1 = random.randrange(1, poblacion)
         a2 = random.randrange(1, poblacion)
         bandera = True
-        while bandera:
-            if a1 == a2:
+        while (bandera):
+            if (a1 == a2):
                 a2 = random.randrange(1, poblacion)
                 a1 = random.randrange(1, poblacion)
             else:
                 bandera = False
         aa1 = valores[a1]
         aa2 = valores[a2]
-        if aa1 < aa2:
+        if (aa1 < aa2):
             Ganadores.append(a1)
         else:
             Ganadores.append(a2)
@@ -73,7 +72,7 @@ def cruce(Ganadores, matriz, nr, origen):
     Ganadores[1] = Ganadores[1] - 1
     a1 = random.randrange(1, nr)
     ba1 = True
-    while ba1:
+    while(ba1):
         if a1 == 0 or a1 == nr:
             a1 = random.randrange(1, nr)
         else:
@@ -84,14 +83,14 @@ def cruce(Ganadores, matriz, nr, origen):
         for i in range(a1):
             hijo.append((matriz[Ganadores[j]][i]))
         for m in range(nr):
-            if j == 0:
+            if (j == 0):
                 a = hijo.count(matriz[Ganadores[1]][m])
-                if a == 0:
+                if (a == 0):
                     hijo.insert(ax1, matriz[Ganadores[1]][m])
                 ax1 = ax1 + 1
             else:
                 a = hijo.count(matriz[Ganadores[0]][m])
-                if a == 0:
+                if (a == 0):
                     hijo.insert(ax1, matriz[Ganadores[0]][m])
                 ax1 = ax1 + 1
         hijo.append(origen)
@@ -107,13 +106,13 @@ def mutacion_un_hijo(hijo, nr):
     r1 = random.randrange(nr)
     r2 = random.randrange(nr)
     br1 = True
-    while br1:
+    while(br1):
         if r1 == 0 or r1 == nr:
             r1 = random.randrange(nr)
         else:
             br1 = False
     br2 = True
-    while br2:
+    while(br2):
         if r2 == 0 or r2 == nr:
             r2 = random.randrange(nr)
         else:
@@ -125,25 +124,8 @@ def mutacion_un_hijo(hijo, nr):
     return hijo
 
 
-# selecion directa
-def selecciondirecta(padres, hijos, matriz):
-    padres[0] = padres[0] - 1
-    padres[1] = padres[1] - 1
-    if hijos[0] < matriz[padres[0]]:
-        ax = "[11]"
-    else:
-        ax = "[0]"
-        # print("sin Cambios entre el hijo 1")
-    if hijos[1] < matriz[padres[1]]:
-        ax = ax + " [22]"
-    else:
-        ax = "[0]"
-        # print("sin Cambios entre el hijo 2")
-    return ax
-
-
 # seleccion
-def seleccion(padres, hijos, matriz, nr, lc):
+def seleccion(padres, hijos, matriz, nr,lc):
     # Insertar padres e hijos a individuos
     padres[0] = padres[0] - 1
     padres[1] = padres[1] - 1
@@ -183,9 +165,8 @@ def seleccion(padres, hijos, matriz, nr, lc):
             matriz[padres[1]] = individuo[a]
     return matriz
 
-
 # 2
-def seleccion2(hijo, Matriz, np, nr, fitness):
+def seleccion2(hijo,Matriz,np,nr,fitness):
     grupos = 3
     s = 10
     cf = []
@@ -194,9 +175,9 @@ def seleccion2(hijo, Matriz, np, nr, fitness):
     cap = []
     for i in range(grupos):
         for c in range(s):
-            ra = random.randint(0, (np - 1))
+            ra = random.randint(0, (np-1))
             cfa.append(Matriz[ra])
-            cap.append([c, ra, fitness[ra]])
+            cap.append([c, ra,fitness[ra]])
         cf.append(cfa)
         cfa = []
         ap.append(cap)
@@ -210,8 +191,8 @@ def seleccion2(hijo, Matriz, np, nr, fitness):
             aux = x[c]
             for dh in range(nr):
                 if hijo[dh] == aux[dh]:
-                    contador = contador + 1
-            ia.append([i, c, contador])
+                   contador = contador + 1
+            ia.append([i,c,contador])
             contador = 0
 
     m1 = 0
@@ -231,20 +212,20 @@ def seleccion2(hijo, Matriz, np, nr, fitness):
     m3 = 0
     for b in range(20, 29):
         if ia[b][2] <= m3:
-            m3 = ia[b][2]
+            m3= ia[b][2]
             m33 = ia[b]
         elif m3 == 0:
             m33 = ia[b]
     gan = 0
     for i in range(3):
-        # print(ap[i][m11[i]][2])
+       # print(ap[i][m11[i]][2])
         if gan > ap[i][m11[i]][2]:
             gan = ap[i][m11[i]][2]
             ganador = ap[i][m11[i]]
         elif gan == 0:
             ganador = ap[i][m11[i]]
-    # print(ganador)
-    # print(Matriz[ganador[1]])
+    #print(ganador)
+    #print(Matriz[ganador[1]])
     Matriz[ganador[1]] = hijo
-    # print(Matriz[ganador[1]])
+    #print(Matriz[ganador[1]])
     return Matriz

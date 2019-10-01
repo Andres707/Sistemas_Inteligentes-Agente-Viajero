@@ -58,11 +58,10 @@ class Aplicacion():  # creacion de la ventana
         self.caja_PO.insert(0, 1000)
         self.caja_RE.insert(0, 1000)
         self.caja_PC.insert(0, 0.85)
-        self.caja_PM.insert(0, 0.1)
+        self.caja_PM.insert(0, 0.01)
         # self.caja_PM.config(state=tk.DISABLED)
         # self.caja_PC.config(state=tk.DISABLED)
         self.raiz.mainloop()
-
 
     def caja_texto(self):
         self.raiz = Tk()
@@ -104,7 +103,8 @@ class Aplicacion():  # creacion de la ventana
     def algoritmo(self):
         # ciudad = self.cafa_texto(self)
         # ----------------0------1----2------3----4------5-----6-----7-----8------9---10-----11---12---13
-        listaciudades = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[5,1],[5,2],[4,2],[3,2],[2,2],[1,2],[0,2],[0,1]]
+        listaciudades = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [5, 1], [5, 2], [4, 2], [3, 2], [2, 2], [1, 2],
+                         [0, 2], [0, 1]]
         poblacion = int(self.caja_PO.get())
         nr = int(self.caja_NC.get())
         re = int(self.caja_RE.get())
@@ -118,7 +118,7 @@ class Aplicacion():  # creacion de la ventana
             Matriz.append(Funciones.cadenaN(nr + 1, 0))
         for i in range(poblacion):
             print("Individuo", (i + 1), ": ", Matriz[i])
-        #for secuencia in range(re):
+        # for secuencia in range(re):
         B = True
         # ----------
         secuencia = 0
@@ -126,13 +126,13 @@ class Aplicacion():  # creacion de la ventana
         lim = re
         res = 0
         diferente = 100
-        while(B):
+        while (B):
             print("Repeticion ", secuencia + 1)
-            Fitnes = (Funciones.valoracion(Matriz, poblacion, nr,listaciudades))
+            Fitnes = (Funciones.valoracion(Matriz, poblacion, nr, listaciudades))
             axx = Fitnes.count(0)
             Ganadores = (Funciones.torneo(Fitnes, poblacion))
             probCruce = Funciones.Probabilidad()
-            if (probCruce > procruce):
+            if probCruce > procruce:
                 hijos = []
                 # print("hijos igual a los padres")
                 Ganadores[0] = Ganadores[0] - 1
@@ -143,13 +143,20 @@ class Aplicacion():  # creacion de la ventana
             else:
                 hijos = Funciones.cruce(Ganadores, Matriz, nr, 0)
             probMutacion = Funciones.Probabilidad()
-            if (probMutacion > proMutacion):
+
+            if probMutacion > proMutacion:
                 # print("sin mutacion")
                 pass
             else:
                 for hm in range(2):
                     hijos[hm] = Funciones.mutacion_un_hijo(hijos[hm], nr)
             Matriz = Funciones.seleccion(Ganadores, hijos, Matriz, nr, listaciudades)
+            # FitnesHijos = Funciones.valoracion(hijos, 2, nr, listaciudades)
+            # sel = Funciones.seleccion(Ganadores, FitnesHijos, Fitnes)
+            # if (sel[0] == 11):
+            # Matriz[Ganadores[0]] = hijos[0]
+            # if (sel[1] == 22):
+            # Matriz[Ganadores[1]] = hijos[1]
             # __________________ OSKAR CHECK ----------------------
             for i in range(poblacion):
                 if Fitnes[fp] > Fitnes[i]:
@@ -163,15 +170,15 @@ class Aplicacion():  # creacion de la ventana
             if res == 2:
                 lim = lim * 2
                 res = 0
-            secuencia = secuencia+1
-            print('Menor Distancia: ',Fitnes[fp])
+            secuencia = secuencia + 1
+            print('Menor Distancia: ', Fitnes[fp])
             if diferente > Fitnes[fp]:
                 diferente = Fitnes[fp]
-                grficar.Graficar(listaciudades, Matriz[fp])
+                grficar.Graficar(listaciudades, Matriz[fp], secuencia, Fitnes[fp])
 
         elapsed_time = time() - start_time
         print("-------------------------Fin-----------------------------------")
-        Fitnes = (Funciones.valoracion(Matriz, poblacion, nr,listaciudades))
+        Fitnes = (Funciones.valoracion(Matriz, poblacion, nr, listaciudades))
         Ganador = 0
         libro = open('Ganadores.txt', 'a')
         for i in range(poblacion):
@@ -198,7 +205,6 @@ class Aplicacion():  # creacion de la ventana
         self.mensajeG.pack()
         self.mensajeLT.place(x=10, y=150)
         self.mensajeG.place(x=10, y=190)
-
 
         return 0
 
