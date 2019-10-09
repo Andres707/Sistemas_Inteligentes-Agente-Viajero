@@ -126,20 +126,30 @@ def mutacion_un_hijo(hijo, nr):
 
 
 # selecion directa
-def selecciondirecta(padres, hijos, matriz):
-    padres[0] = padres[0] - 1
-    padres[1] = padres[1] - 1
-    if hijos[0] < matriz[padres[0]]:
-        ax = "[11]"
-    else:
-        ax = "[0]"
-        # print("sin Cambios entre el hijo 1")
-    if hijos[1] < matriz[padres[1]]:
-        ax = ax + " [22]"
-    else:
-        ax = "[0]"
-        # print("sin Cambios entre el hijo 2")
-    return ax
+def selecciondirecta(Ppadres, hijos, fitnes, fitneshijos, matriz):
+    ax = []
+    Ppadres[0] = Ppadres[0] - 1
+    Ppadres[1] = Ppadres[1] - 1
+    for i in range(2):
+        for j in range(2):
+            if i == 0:
+                ax.append([fitnes[Ppadres[j]], "p"+str(j)])
+            else:
+                ax.append([fitneshijos[j], "h"+str(j)])
+    # print(ax)
+    ax.sort()
+    # print(ax)
+    mejor1 = ax[0]
+    mejor2 = ax[1]
+    if mejor2[1] == 'p0':
+        matriz[Ppadres[1]] = matriz[Ppadres[0]]
+    elif mejor1[1] == 'p1':
+        matriz[Ppadres[0]] = matriz[Ppadres[1]]
+    if mejor1[1] == 'h0' or mejor2[1] == 'h0':
+        matriz[Ppadres[0]] = hijos[0]
+    elif mejor1[1] == 'h1' or mejor2[1] == 'h1':
+        matriz[Ppadres[1]] = hijos[1]
+    return matriz
 
 
 # seleccion

@@ -2,13 +2,13 @@ import tkinter as tk
 from tkinter import *  # Carga módulo tk (widgets estándar)
 from tkinter import ttk  # Carga ttk (para widgets nuevos 8.5+)
 from time import time
-
 from pip._vendor.distlib.compat import raw_input
 import Funciones
 import grficar
+import threading
 
 
-class Aplicacion():  # creacion de la ventana
+class Aplicacion:  # creacion de la ventana
     def __init__(self):
         self.raiz = Tk()
         self.raiz.geometry('400x320')
@@ -101,6 +101,8 @@ class Aplicacion():  # creacion de la ventana
         return 0
 
     def algoritmo(self):
+        """ hilo = threading.Thread(target=self.secuencia())
+        hilo.start()"""
         # ciudad = self.cafa_texto(self)
         # ----------------0------1----2------3----4------5-----6-----7-----8------9---10-----11---12---13
         listaciudades = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [5, 1], [5, 2], [4, 2], [3, 2], [2, 2], [1, 2],
@@ -122,11 +124,12 @@ class Aplicacion():  # creacion de la ventana
         B = True
         # ----------
         secuencia = 0
-        fp = 0
+        # fp = 0
         lim = re
         res = 0
         diferente = 100
-        while (B):
+        while B:
+            fp = 0
             print("Repeticion ", secuencia + 1)
             Fitnes = (Funciones.valoracion(Matriz, poblacion, nr, listaciudades))
             axx = Fitnes.count(0)
@@ -150,13 +153,11 @@ class Aplicacion():  # creacion de la ventana
             else:
                 for hm in range(2):
                     hijos[hm] = Funciones.mutacion_un_hijo(hijos[hm], nr)
-            Matriz = Funciones.seleccion(Ganadores, hijos, Matriz, nr, listaciudades)
-            # FitnesHijos = Funciones.valoracion(hijos, 2, nr, listaciudades)
-            # sel = Funciones.seleccion(Ganadores, FitnesHijos, Fitnes)
-            # if (sel[0] == 11):
-            # Matriz[Ganadores[0]] = hijos[0]
-            # if (sel[1] == 22):
-            # Matriz[Ganadores[1]] = hijos[1]
+            if Fitnes[fp] < 17:
+                Matriz = Funciones.seleccion(Ganadores, hijos, Matriz, nr, listaciudades)
+            else:
+                FitnesHijos = Funciones.valoracion(hijos, 2, 13, listaciudades)
+                Matriz = Funciones.selecciondirecta(Ganadores, hijos, Fitnes, FitnesHijos, Matriz)
             # __________________ OSKAR CHECK ----------------------
             for i in range(poblacion):
                 if Fitnes[fp] > Fitnes[i]:
@@ -168,13 +169,15 @@ class Aplicacion():  # creacion de la ventana
             if res == 1:
                 B = False
             if res == 2:
-                lim = lim * 2
+                lim *= 2
                 res = 0
-            secuencia = secuencia + 1
+            secuencia += 1
             print('Menor Distancia: ', Fitnes[fp])
-            if diferente > Fitnes[fp]:
+            if diferente != Fitnes[fp]:
                 diferente = Fitnes[fp]
                 grficar.Graficar(listaciudades, Matriz[fp], secuencia, Fitnes[fp])
+            else:
+                pass
 
         elapsed_time = time() - start_time
         print("-------------------------Fin-----------------------------------")
