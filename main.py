@@ -5,7 +5,7 @@ from time import time
 from pip._vendor.distlib.compat import raw_input
 import Funciones
 import grficar
-import threading
+# import threading
 
 
 class Aplicacion:  # creacion de la ventana
@@ -100,6 +100,7 @@ class Aplicacion:  # creacion de la ventana
         print(p)
         return 0
 
+    @property
     def algoritmo(self):
         """ hilo = threading.Thread(target=self.secuencia())
         hilo.start()"""
@@ -213,7 +214,7 @@ class Aplicacion:  # creacion de la ventana
 
 
 def main():
-    mi_app = Aplicacion()
+    Aplicacion()
     return 0
 
 
