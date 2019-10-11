@@ -1,3 +1,5 @@
+__author__ = 'Andres Julian'
+
 import matplotlib.pyplot as plt
 
 

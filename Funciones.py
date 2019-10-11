@@ -1,3 +1,5 @@
+__author__ = 'Andres Julian'
+
 from random import shuffle
 import random
 import math

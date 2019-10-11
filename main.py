@@ -1,3 +1,4 @@
+__author__ = 'Andres Julian'
 import tkinter as tk
 from tkinter import *  # Carga módulo tk (widgets estándar)
 from tkinter import ttk  # Carga ttk (para widgets nuevos 8.5+)
