@@ -12,7 +12,7 @@ def Probabilidad():
 
 
 # Poblacion
-def cadenaN(numerolimite,origen):
+def cadenaN(numerolimite, origen):
     x = [i for i in range(0, numerolimite)]
     shuffle(x)
     for i in range(numerolimite):
@@ -33,11 +33,10 @@ def valoracion(poblacion, NumeroPoblacion, NumeroAlelos, Lista):
     for m in range(NumeroPoblacion):
         matriz = poblacion[m]
         i = 1
-        for i in range(NumeroAlelos + 1):
+        for i in range(NumeroAlelos):
             n = matriz[i]
             n1 = matriz[i + 1]
-            r = round(math.sqrt((Lista[n][0] - Lista[n1][0]) ** 2 +
-                                (Lista[n][1] - Lista[n1][1]) ** 2), 2)
+            r = round(math.sqrt((Lista[n][0] - Lista[n1][0]) ** 2 +(Lista[n][1] - Lista[n1][1]) ** 2), 2)
             contador = contador + r
         Valor.append(contador)
         contador = contador * 0
@@ -68,7 +67,7 @@ def torneo(valores, poblacion):
 
 # cruce
 def cruce(Ganadores, matriz, nr, origen):
-    nr = nr+1
+    nr = nr + 1
     hijos = []
     hijo = []
     Ganadores[0] = Ganadores[0] - 1
@@ -105,7 +104,7 @@ def cruce(Ganadores, matriz, nr, origen):
 
 # mutacion
 def mutacion_un_hijo(hijo, nr):
-    nr = nr+1
+    nr = nr + 1
     r1 = random.randrange(nr)
     r2 = random.randrange(nr)
     br1 = True
@@ -120,10 +119,11 @@ def mutacion_un_hijo(hijo, nr):
             r2 = random.randrange(nr)
         else:
             br2 = False
-    G1 = hijo[r1]
-    G2 = hijo[r2]
-    hijo[r1] = G2
-    hijo[r2] = G1
+    for i in range(2):
+        G1 = hijo[i][r1]
+        G2 = hijo[i][r2]
+        hijo[i][r1] = G2
+        hijo[i][r2] = G1
     return hijo
 
 
@@ -135,22 +135,22 @@ def selecciondirecta(Ppadres, hijos, fitnes, fitneshijos, matriz):
     for i in range(2):
         for j in range(2):
             if i == 0:
-                ax.append([fitnes[Ppadres[j]], "p"+str(j)])
+                ax.append([fitnes[Ppadres[j]], "p" + str(j)])
             else:
-                ax.append([fitneshijos[j], "h"+str(j)])
+                ax.append([fitneshijos[j], "h" + str(j)])
     # print(ax)
     ax.sort()
     # print(ax)
     mejor1 = ax[0]
     mejor2 = ax[1]
-    if mejor2[1] == 'p0':
-        matriz[Ppadres[1]] = matriz[Ppadres[0]]
-    elif mejor1[1] == 'p1':
-        matriz[Ppadres[0]] = matriz[Ppadres[1]]
     if mejor1[1] == 'h0' or mejor2[1] == 'h0':
         matriz[Ppadres[0]] = hijos[0]
     elif mejor1[1] == 'h1' or mejor2[1] == 'h1':
         matriz[Ppadres[1]] = hijos[1]
+    if mejor2[1] == 'p0':
+        matriz[Ppadres[1]] = matriz[Ppadres[0]]
+    elif mejor1[1] == 'p1':
+        matriz[Ppadres[0]] = matriz[Ppadres[1]]
     return matriz
 
 
@@ -196,67 +196,15 @@ def seleccion(padres, hijos, matriz, nr, lc):
     return matriz
 
 
-# 2
-def seleccion2(hijo, Matriz, np, nr, fitness):
-    grupos = 3
-    s = 10
-    cf = []
-    cfa = []
-    ap = []
-    cap = []
-    for i in range(grupos):
-        for c in range(s):
-            ra = random.randint(0, (np - 1))
-            cfa.append(Matriz[ra])
-            cap.append([c, ra, fitness[ra]])
-        cf.append(cfa)
-        cfa = []
-        ap.append(cap)
-        cap = []
+# random cidudad
+def ciudades(nc):
+    x = [i for i in range(1, nc)]
+    y = [i for i in range(1, nc)]
+    shuffle(x)
+    shuffle(y)
+    lista = []
+    for i in range(nc - 1):
+        lista.append([x[i], y[i]])
+    print(lista)
 
-    ia = []
-    contador = 0
-    for i in range(grupos):
-        x = cf[i]
-        for c in range(s):
-            aux = x[c]
-            for dh in range(nr):
-                if hijo[dh] == aux[dh]:
-                    contador = contador + 1
-            ia.append([i, c, contador])
-            contador = 0
-
-    m1 = 0
-    for i in range(9):
-        if ia[i][2] <= m1:
-            m1 = ia[i][2]
-            m11 = ia[i]
-        elif m1 == 0:
-            m11 = ia[i]
-    m2 = 0
-    for a in range(10, 19):
-        if ia[a][2] <= m2:
-            m2 = ia[a][2]
-            m22 = ia[a]
-        elif m2 == 0:
-            m22 = ia[a]
-    m3 = 0
-    for b in range(20, 29):
-        if ia[b][2] <= m3:
-            m3 = ia[b][2]
-            m33 = ia[b]
-        elif m3 == 0:
-            m33 = ia[b]
-    gan = 0
-    for i in range(3):
-        # print(ap[i][m11[i]][2])
-        if gan > ap[i][m11[i]][2]:
-            gan = ap[i][m11[i]][2]
-            ganador = ap[i][m11[i]]
-        elif gan == 0:
-            ganador = ap[i][m11[i]]
-    # print(ganador)
-    # print(Matriz[ganador[1]])
-    Matriz[ganador[1]] = hijo
-    # print(Matriz[ganador[1]])
-    return Matriz
+    return lista
