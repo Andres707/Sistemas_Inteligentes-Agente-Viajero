@@ -12,7 +12,7 @@ def Probabilidad():
 
 
 # Poblacion
-def cadenaN(numerolimite, origen):
+def cadenaN(numerolimite,origen):
     x = [i for i in range(0, numerolimite)]
     shuffle(x)
     for i in range(numerolimite):
@@ -33,10 +33,11 @@ def valoracion(poblacion, NumeroPoblacion, NumeroAlelos, Lista):
     for m in range(NumeroPoblacion):
         matriz = poblacion[m]
         i = 1
-        for i in range(NumeroAlelos):
+        for i in range(NumeroAlelos + 1):
             n = matriz[i]
             n1 = matriz[i + 1]
-            r = round(math.sqrt((Lista[n][0] - Lista[n1][0]) ** 2 +(Lista[n][1] - Lista[n1][1]) ** 2), 2)
+            r = round(math.sqrt((Lista[n][0] - Lista[n1][0]) ** 2 +
+                                (Lista[n][1] - Lista[n1][1]) ** 2), 2)
             contador = contador + r
         Valor.append(contador)
         contador = contador * 0
@@ -67,7 +68,7 @@ def torneo(valores, poblacion):
 
 # cruce
 def cruce(Ganadores, matriz, nr, origen):
-    nr = nr + 1
+    nr = nr+1
     hijos = []
     hijo = []
     Ganadores[0] = Ganadores[0] - 1
@@ -104,7 +105,7 @@ def cruce(Ganadores, matriz, nr, origen):
 
 # mutacion
 def mutacion_un_hijo(hijo, nr):
-    nr = nr + 1
+    nr = nr+1
     r1 = random.randrange(nr)
     r2 = random.randrange(nr)
     br1 = True
@@ -135,22 +136,22 @@ def selecciondirecta(Ppadres, hijos, fitnes, fitneshijos, matriz):
     for i in range(2):
         for j in range(2):
             if i == 0:
-                ax.append([fitnes[Ppadres[j]], "p" + str(j)])
+                ax.append([fitnes[Ppadres[j]], "p"+str(j)])
             else:
-                ax.append([fitneshijos[j], "h" + str(j)])
+                ax.append([fitneshijos[j], "h"+str(j)])
     # print(ax)
     ax.sort()
     # print(ax)
     mejor1 = ax[0]
     mejor2 = ax[1]
-    if mejor1[1] == 'h0' or mejor2[1] == 'h0':
-        matriz[Ppadres[0]] = hijos[0]
-    elif mejor1[1] == 'h1' or mejor2[1] == 'h1':
-        matriz[Ppadres[1]] = hijos[1]
     if mejor2[1] == 'p0':
         matriz[Ppadres[1]] = matriz[Ppadres[0]]
     elif mejor1[1] == 'p1':
         matriz[Ppadres[0]] = matriz[Ppadres[1]]
+    if mejor1[1] == 'h0' or mejor2[1] == 'h0':
+        matriz[Ppadres[0]] = hijos[0]
+    elif mejor1[1] == 'h1' or mejor2[1] == 'h1':
+        matriz[Ppadres[1]] = hijos[1]
     return matriz
 
 
@@ -208,3 +209,4 @@ def ciudades(nc):
     print(lista)
 
     return lista
+

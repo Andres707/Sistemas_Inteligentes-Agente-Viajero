@@ -72,18 +72,21 @@ class Aplicacion:  # creacion de la ventana
 
     def algoritmo(self):
         poblacion = int(self.caja_PO.get())
-        nr = int(self.caja_NC.get())
+        alelos = int(self.caja_NC.get())
         re = int(self.caja_RE.get())
         procruce = float(self.caja_PC.get())
         proMutacion = float(self.caja_PM.get())
-        listaciudades = Funciones.ciudades(13)
+        listaciudades = Funciones.ciudades(alelos + 2)
+        """ [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [5, 1], [5, 2], [4, 2], [3, 2], [2, 2], [1, 2],
+                         [0, 2], [0, 1]]"""
+        print(listaciudades)
         Matriz = []
 
         Ganadores = []
         start_time = time()
         for m in range(poblacion):
             # agregar comentario
-            Matriz.append(Funciones.cadenaN(nr + 1, 0))
+            Matriz.append(Funciones.cadenaN(alelos + 1, 0))
         for i in range(poblacion):
             print("Individuo", (i + 1), ": ", Matriz[i])
         # for secuencia in range(re):
@@ -97,7 +100,7 @@ class Aplicacion:  # creacion de la ventana
         while B:
             fp = 0
             print("Repeticion ", secuencia + 1)
-            Fitnes = (Funciones.valoracion(Matriz, poblacion, nr, listaciudades))
+            Fitnes = (Funciones.valoracion(Matriz, poblacion, alelos, listaciudades))
             axx = Fitnes.count(0)
             Ganadores = (Funciones.torneo(Fitnes, poblacion))
             probCruce = Funciones.Probabilidad()
@@ -110,18 +113,22 @@ class Aplicacion:  # creacion de la ventana
                     hij = Matriz[Ganadores[hj]]
                     hijos.append(hij)
             else:
-                hijos = Funciones.cruce(Ganadores, Matriz, nr, 0)
+                hijos = Funciones.cruce(Ganadores, Matriz, alelos, 0)
             probMutacion = Funciones.Probabilidad()
 
             if probMutacion > proMutacion:
                 # print("sin mutacion")
                 pass
             else:
-                hijos = Funciones.mutacion_un_hijo(hijos, nr)
+                hijos = Funciones.mutacion_un_hijo(hijos, alelos)
             if Fitnes[fp] < 14:
-                Matriz = Funciones.seleccion(Ganadores, hijos, Matriz, nr, listaciudades)
+                Matriz = Funciones.seleccion(Ganadores, hijos, Matriz, alelos, listaciudades)
             else:
-                FitnesHijos = Funciones.valoracion(hijos, 2, nr, listaciudades)
+                hijos = Funciones.mutacion_un_hijo(hijos, alelos)
+            if Fitnes[fp] < 14:
+                Matriz = Funciones.seleccion(Ganadores, hijos, Matriz, alelos, listaciudades)
+            else:
+                FitnesHijos = Funciones.valoracion(hijos, 2, alelos, listaciudades)
                 Matriz = Funciones.selecciondirecta(Ganadores, hijos, Fitnes, FitnesHijos, Matriz)
             # __________________ OSKAR CHECK ----------------------
             for i in range(poblacion):
@@ -144,7 +151,7 @@ class Aplicacion:  # creacion de la ventana
 
         elapsed_time = time() - start_time
         print("-------------------------Fin-----------------------------------")
-        Fitnes = (Funciones.valoracion(Matriz, poblacion, nr, listaciudades))
+        Fitnes = (Funciones.valoracion(Matriz, poblacion, alelos, listaciudades))
         Ganador = 0
         libro = open('Ganadores.txt', 'a')
         for i in range(poblacion):
