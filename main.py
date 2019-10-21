@@ -1,189 +1,194 @@
-__author__ = 'Andres Julian'
+import random
 import tkinter as tk
+from time import time
 from tkinter import *  # Carga módulo tk (widgets estándar)
 from tkinter import ttk  # Carga ttk (para widgets nuevos 8.5+)
-from time import time
+
 from pip._vendor.distlib.compat import raw_input
+
 import Funciones
-import grficar
+import Grafica
 
 
-# import threading
-
-
-class Aplicacion:  # creacion de la ventana
+class Aplicacion():
     def __init__(self):
-        self.raiz = Tk()
-        self.raiz.geometry('600x320')
-        self.raiz.configure(bg='beige')
-        self.raiz.title('El problema del agente Viajero')
-        # ------------------pestañas------------------------------
-        tab_control = ttk.Notebook(self.raiz)
-        ini = ttk.Frame(tab_control)
-        tab2 = ttk.Frame(tab_control)
-        tab_control.add(ini, text='Inicio')
-        tab_control.add(tab2, text='Ciudades')
+        # <---------- VARIABLES ---------->
+        self.isReady = False
+
+        # <---------- UI ---------->
+        self.ventana = Tk()
+        self.ventana.geometry('600x320')
+        self.ventana.configure(bg='beige')
+        self.ventana.title('Problema del Agente Viajero')
+
+        # <---------- TABS ---------->
+        tab_control = ttk.Notebook(self.ventana)
+        home = ttk.Frame(tab_control)
+        tab_control.add(home, text="Home")
         tab_control.pack(expand=1, fill='both')
-        # ------------------------Label---------------------------
-        mensajeNC = Label(ini, text="Numero de ciudades", fg="black")
-        mensajePO = Label(ini, text="Numero de Individuos", fg="black")
-        mensajeRE = Label(ini, text="Numero de Repeticiones", fg="black")
-        mensajePC = Label(ini, text="Probabilidad de cruce", fg="black")
-        PM = Label(ini, text="Probabilidad de Mutacion", fg="black")
-        ori = Label(ini, text="Origen", fg="black")
-        des = Label(ini, text="Destino", fg="black")
-        # ------------------------Cajas---------------------------
-        self.caja_NC = ttk.Entry(ini, justify=tk.LEFT)
-        self.caja_PO = ttk.Entry(ini, justify=tk.LEFT)
-        self.caja_RE = ttk.Entry(ini, justify=tk.LEFT)
-        self.caja_PC = ttk.Entry(ini, justify=tk.LEFT)
-        self.caja_PM = ttk.Entry(ini, justify=tk.LEFT)
-        self.caja_OR = ttk.Entry(ini, justify=tk.LEFT)
-        self.caja_DE = ttk.Entry(ini, justify=tk.LEFT)
-        # ------------------------Botones---------------------------
-        self.botonSA = ttk.Button(ini, text='Salir', command=self.raiz.destroy).place(x=290, y=250)
-        self.botonIn = ttk.Button(ini, text="Iniciar", command=self.algoritmo).place(x=190, y=250)
-        # ------------------Posicion---------------------------
-        mensajeNC.place(x=10, y=5)
-        self.caja_NC.place(x=10, y=25)
-        mensajePO.place(x=150, y=5)
-        self.caja_PO.place(x=150, y=25)
-        mensajeRE.place(x=290, y=5)
-        self.caja_RE.place(x=290, y=25)
-        mensajePC.place(x=430, y=5)
-        self.caja_PC.place(x=430, y=25)
-        PM.place(x=8, y=50)
-        self.caja_PM.place(x=10, y=70)
-        ori.place(x=155, y=50)
-        self.caja_OR.place(x=155, y=70)
-        des.place(x=290, y=50)
-        self.caja_DE.place(x=290, y=70)
-        # ------------------------fin--------------------------------
-        self.mensajeLT = Label(ini, text=" ", fg="black")
-        self.mensajeG = Label(ini, text=" ", fg="black")
-        self.mensajeLT.place(x=10, y=150)
-        self.mensajeG.place(x=10, y=190)
-        # ------------------------Valores estaticos------------------
-        self.caja_NC.insert(0, 25)
-        self.caja_PO.insert(0, 1000)
-        self.caja_RE.insert(0, 10000)
-        self.caja_PC.insert(0, 0.85)
-        self.caja_PM.insert(0, 0.01)
-        self.caja_OR.insert(0, 0)
-        self.caja_DE.insert(0, 3)
-        self.caja_PM.config(state=tk.DISABLED)
-        self.caja_PC.config(state=tk.DISABLED)
-        self.raiz.mainloop()
+
+        # <---------- LABEL ---------->
+        lblNumCiudades = Label(home, text="Numero de Ciudades", fg='black')
+        lblNumIndividuos = Label(home, text="Numero de Individuos", fg='black')
+        lblRepeticiones = Label(home, text="Repeticiones", fg='black')
+        lblProbCruce = Label(home, text="Prob. de Cruce", fg='black')
+        lblProbMut = Label(home, text="Prob. de Mutacion", fg='black')
+        lblOrigen = Label(home, text="Origen", fg='black')
+
+        # <---------- TEXTBOX ---------->
+        self.txtNumCiudades = ttk.Entry(home, justify=tk.LEFT)
+        self.txtNumIndividuos = ttk.Entry(home, justify=tk.LEFT)
+        self.txtRepeticiones = ttk.Entry(home, justify=tk.LEFT)
+        self.txtProbCruce = ttk.Entry(home, justify=tk.LEFT)
+        self.txtProbMut = ttk.Entry(home, justify=tk.LEFT)
+        self.txtOrigen = ttk.Entry(home, justify=tk.LEFT)
+
+        # <---------- BUTTON ---------->
+        self.btnPoblacion = ttk.Button(home, text="CREAR POBLACION", command=self.ciudades).place(x=100, y=250)
+        self.btnIniciar = ttk.Button(home, text="INICIAR", command=self.algoritmo).place(x=250, y=250)
+        self.btnSalir = ttk.Button(home, text="SALIR", command=self.ventana.destroy).place(x=350, y=250)
+
+        # <---------- POSITION ---------->
+        lblNumCiudades.place(x=10, y=5)
+        self.txtNumCiudades.place(x=10, y=25)
+        lblNumIndividuos.place(x=150, y=5)
+        self.txtNumIndividuos.place(x=150, y=25)
+        lblRepeticiones.place(x=290, y=5)
+        self.txtRepeticiones.place(x=290, y=25)
+        lblProbCruce.place(x=430, y=5)
+        self.txtProbCruce.place(x=430, y=25)
+        lblProbMut.place(x=10, y=50)
+        self.txtProbMut.place(x=10, y=70)
+        lblOrigen.place(x=150, y=50)
+        self.txtOrigen.place(x=150, y=70)
+
+        # <---------- RESULTS ---------->
+        self.lblTiempo = Label(home, text="", fg='black').place(x=10, y=150)
+        self.lblGanador = Label(home, text="", fg='black').place(x=10, y=190)
+
+        # <---------- INITIAL DATA ---------->
+        self.txtNumCiudades.insert(0, "test")
+        self.txtNumIndividuos.insert(0, 1000)
+        self.txtRepeticiones.insert(0, 10000)
+        self.txtProbCruce.insert(0, 0.85)
+        self.txtProbMut.insert(0, 0.01)
+        self.txtOrigen.insert(0, 0)
+        self.txtProbCruce.config(state=tk.DISABLED)
+        self.txtProbMut.config(state=tk.DISABLED)
+        self.ventana.mainloop()
 
     def algoritmo(self):
-        poblacion = int(self.caja_PO.get())
-        alelos = int(self.caja_NC.get())
-        rep = int(self.caja_RE.get())
-        procruce = float(self.caja_PC.get())
-        proMutacion = float(self.caja_PM.get())
-        origen = int(self.caja_OR.get())
-        destino = int(self.caja_DE.get())
-        listaciudades = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [5, 1], [5, 2], [4, 2], [3, 2], [2, 2], [1, 2],
-                         [0, 2], [0, 1]]
-        # Funciones.ciudades(alelos + 2)
-        print(listaciudades)
-        Matriz = []
+        if self.isReady:
+            _individuos = int(self.txtNumIndividuos.get())
+            _origen = int(self.txtOrigen.get())
+            _ciudades = self.ciudades
+            _repeticiones = int(self.txtRepeticiones.get())
+            _mejorGrafica = [-1]
+            _ciudadesText = self.txtNumCiudades.get()
 
-        # Ganadores = []
-        start_time = time()
-        for m in range(poblacion):
-            # agregar comentario
-            Matriz.append(Funciones.cadenaN(alelos + 1, origen, destino))
-        for i in range(poblacion):
-            print("Individuo", (i + 1), ": ", Matriz[i])
-        # for secuencia in range(re):
-        B = True
-        # ----------
-        secuencia = 0
-        # fp = 0
-        lim = rep
-        res = 0
-        diferente = 100
-        while B:
-            fp = 0
-            print("Repeticion ", secuencia + 1)
-            Fitnes = (Funciones.valoracion(Matriz, poblacion, alelos, listaciudades))
-            axx = Fitnes.count(0)
-            Ganadores = (Funciones.torneo(Fitnes, poblacion))
-            probCruce = Funciones.Probabilidad()
-            if probCruce > procruce:
-                hijos = []
-                # print("hijos igual a los padres")
-                Ganadores[0] = Ganadores[0] - 1
-                Ganadores[1] = Ganadores[1] - 1
-                for hj in range(2):
-                    hij = Matriz[Ganadores[hj]]
-                    hijos.append(hij)
-            else:
-                hijos = Funciones.cruce(Ganadores, Matriz, alelos, destino)
-            probMutacion = Funciones.Probabilidad()
+            print("Iniciando Algoritmo...")
+            start_time = time()
 
-            if probMutacion > proMutacion:
-                # print("sin mutacion")
-                pass
-            else:
-                hijos = Funciones.mutacion_un_hijo(hijos, alelos)
-            if Fitnes[fp] < 14:
-                Matriz = Funciones.seleccion(Ganadores, hijos, Matriz, alelos, listaciudades)
-            else:
-                hijos = Funciones.mutacion_un_hijo(hijos, alelos)
-            if Fitnes[fp] < 14:
-                Matriz = Funciones.seleccion(Ganadores, hijos, Matriz, alelos, listaciudades)
-            else:
-                FitnesHijos = Funciones.valoracion(hijos, 2, alelos, listaciudades)
-                Matriz = Funciones.selecciondirecta(Ganadores, hijos, Fitnes, FitnesHijos, Matriz)
-            # __________________ OSKAR CHECK ----------------------
-            for i in range(poblacion):
-                if Fitnes[fp] > Fitnes[i]:
-                    fp = i
-            if secuencia == lim:
-                res = int(raw_input('Detener ahora? si = 1 no = 2 '))
-            if res is 1:
-                B = False
-            elif res is 2:
-                lim *= 2
-                res = 0
-            secuencia += 1
-            print('Menor Distancia: ', Fitnes[fp])
-            if diferente != Fitnes[fp]:
-                diferente = Fitnes[fp]
-                grficar.Graficar(listaciudades, Matriz[fp], secuencia, Fitnes[fp])
-            else:
-                pass
+            Poblacion = []
 
-        elapsed_time = time() - start_time
-        print("-------------------------Fin-----------------------------------")
-        Fitnes = (Funciones.valoracion(Matriz, poblacion, alelos, listaciudades))
-        Ganador = 0
-        libro = open('Ganadores.txt', 'a')
-        for i in range(poblacion):
-            print("Individuo", (i + 1), ": ", Matriz[i], "Fitnes :", Fitnes[i])
-            if Fitnes[Ganador] > Fitnes[i]:
-                Ganador = i
-            if Fitnes[i] == 0:
-                parrafo = "Inividuo", (i + 1), ": ", Matriz[i], "Fitness: ", Fitnes[i]
-                parrafo = str(parrafo)
-                libro.write('\n' + parrafo)
-        libro.write('\n')
-        libro.close()
+            for i in range(_individuos):
+                Poblacion.append(Funciones.individuo(_ciudades, _origen))
 
-        print("Lapso de tiempo: %.10f segundos." % elapsed_time)
-        print("numero de individuaos con un 0: ", axx)
-        print("Ganador: ", Ganador + 1)
-        print("Ganador: ", Matriz[Ganador], "Fitness: ", Fitnes[Ganador])
-        p = "Ganador: ", Matriz[Ganador], "Fitness: ", Fitnes[Ganador]
-        p = str(p)
-        print("Repeticiones: ", secuencia)
-        text = "Lapso de tiempo: %.10f segundos." % elapsed_time,
-        self.mensajeLT.config(text="Lapso de tiempo: %.10f segundos." % elapsed_time)
-        self.mensajeG.config(text=p)
+            for ind in range(_individuos):
+                print("Individuo ", (ind+1), ": ", Poblacion[ind])
 
-        return 0
+            Fitness = Funciones.evaluar(Poblacion, len(Poblacion), _ciudades, self.listaCiudades)
+
+            isContinue = True
+            secuencia = 1
+            limite = _repeticiones
+            res = 'x'
+
+            while isContinue:
+                print("Repeticion ", secuencia)
+
+                PosPadres = Funciones.torneo(_individuos, Fitness)
+                print("Posiciones padres: ", PosPadres)
+
+                _probCruce = float(self.txtProbCruce.get())
+                _probMut = float(self.txtProbMut.get())
+                Hijos = []
+
+                if round(random.random(), 3) <= _probCruce:
+                    Hijos = Funciones.cruce(Poblacion, PosPadres, _ciudades)
+                else:
+                    for i in range(2):
+                        Hijos.append(Poblacion[PosPadres[i]])
+
+                if round(random.random(), 3) <= _probMut:
+                    Funciones.mutacion(Hijos, _ciudades)
+                    print("MUTACION AQUI")
+
+                FitnessHijos = Funciones.evaluar(Hijos, len(Hijos), _ciudades, self.listaCiudades)
+
+                Mejores = Funciones.seleccionDirecta(Poblacion, PosPadres, Fitness, Hijos, FitnessHijos)
+                Funciones.remplazo(Poblacion, PosPadres, Fitness, Mejores)
+                # TODO: Mejor de todos
+
+                if secuencia >= limite:
+                    res = int(raw_input("Desea continuar? si = 1"))
+                if res is 1:
+                    limite += _repeticiones
+                    res = 'x'
+                elif res is not 'x':
+                    isContinue = False
+
+                _mejor = Funciones.mejor(Poblacion, Fitness)
+
+                if _ciudadesText == 'test':
+                    if _mejor[0] is 14:
+                        isContinue = False
+
+                if _mejorGrafica[0] is not _mejor[0]:
+                    _mejorGrafica = _mejor
+                    Grafica.grafica(1, _mejorGrafica[1], _mejorGrafica[0], secuencia, self.listaCiudades, (_ciudades+1), 15)
+
+                secuencia += 1
+
+            print("<--TERMINADO-->")
+
+            for i in range(_individuos):
+                print("Fitness ", i, ": ", Fitness[i], " --> Individuo: ", Poblacion[i])
+
+            _mejor = Funciones.mejor(Poblacion, Fitness)
+            print("Individuo ", _mejor[2], ": ", _mejor[1])
+            print("Fitness: ", _mejor[0])
+
+            elapsed_time = time() - start_time
+            print(elapsed_time)
+        else:
+            print("Necesito Ciudades :(")
+
+    def ciudades(self):
+        if not self.isReady:
+            print("Creando Ciudades...")
+
+            self.listaCiudades = []
+            _ciudades = self.txtNumCiudades.get()
+
+            if _ciudades == "test":
+                self.ciudades = 14
+                self.txtOrigen.delete(0)
+                self.txtOrigen.insert(0, 0)
+                self.txtOrigen.config(state=DISABLED)
+                self.listaCiudades = [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [5, 1],
+                                      [5, 2], [4, 2], [3, 2], [2, 2], [1, 2], [0, 2], [0, 1],
+                                      [0, 0]]
+            else:
+                self.ciudades = int(_ciudades)
+                self.listaCiudades = Funciones.crearCiudades(self.ciudades)
+
+            self.isReady = True
+            print("Ciudades Creadas :D")
+            print(self.listaCiudades)
+            Grafica.grafica(ciudades=self.listaCiudades, numCiudades=self.ciudades)
+        else:
+            print("Ya tengo ciudades :)")
 
 
 def main():

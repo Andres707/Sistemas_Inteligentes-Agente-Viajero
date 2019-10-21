@@ -1,220 +1,171 @@
-__author__ = 'Andres Julian'
-
-from random import shuffle
-import random
 import math
+import random
+from random import shuffle
 
 
-# Probabilida
-def Probabilidad():
-    ra = round(random.random(), 2)
-    return ra
+# DOCUMENTATION: Funcion para ciudades aleatorias
+#  dentro del rango del limite de ciudades
+def crearCiudades(ciudades):
+    listaCiudades = []
 
+    x = [i for i in range(ciudades)]
+    y = [i for i in range(ciudades)]
 
-# Poblacion
-def cadenaN(numerolimite, origen, destino):
-    x = [i for i in range(0, numerolimite)]
     shuffle(x)
-    for i in range(numerolimite):
+    shuffle(y)
+
+    for i in range(ciudades):
+        listaCiudades.append([x[i], y[i]])
+
+    return listaCiudades
+
+
+# DOCUMENTATION: Funcion para individuos aleatorios
+#  con las posiciones de las ciudades
+def individuo(ciudades, origen):
+    x = [i for i in range(ciudades)]
+
+    shuffle(x)
+
+    for i in range(ciudades):
         if x[i] == origen:
             aux = x[0]
             x[0] = origen
             x[i] = aux
-    if origen is not destino:
-        for i in range(numerolimite):
-            if x[i] == destino:
-                aux = x[numerolimite-1]
-                x[numerolimite-1] = destino
-                x[i] = aux
-    else:
-        x.append(origen)
+            break
 
-
+    x.append(origen)
 
     return x
 
 
-# Valoracion
-def valoracion(poblacion, NumeroPoblacion, NumeroAlelos, Lista):
-    Valor = []
-    contador = 0
-    for m in range(NumeroPoblacion):
-        matriz = poblacion[m]
-        i = 1
-        for i in range(NumeroAlelos + 0):
-            n = matriz[i]
-            n1 = matriz[i + 1]
-            r = round(math.sqrt((Lista[n][0] - Lista[n1][0]) ** 2 +
-                                (Lista[n][1] - Lista[n1][1]) ** 2), 2)
-            contador = contador + r
-        Valor.append(contador)
-        contador = contador * 0
-    return Valor
+# DOCUMENTATION: Funcion para calcular el fitness de una poblacion
+#  de individuos
+def evaluar(poblacion, numIndividuos, ciudades, listaCiudades):
+    fitness = []
+
+    for pos in range(numIndividuos):
+        _distancia = 0
+        _individuo = poblacion[pos]
+        for i in range(ciudades):
+            _currentC = _individuo[i]
+            _nextC = _individuo[i+1]
+
+            _dist = round(math.sqrt((listaCiudades[_currentC][0] - listaCiudades[_nextC][0]) ** 2 +
+                                    (listaCiudades[_currentC][1] - listaCiudades[_nextC][1]) ** 2), 2)
+            _distancia += _dist
+
+        fitness.append(_distancia)
+
+    return fitness
 
 
-# torneo
-def torneo(valores, poblacion):
-    Ganadores = []
+# DOCUMENTATION: Funcion para obtener 2 padres con seleccion por torneo
+def torneo(poblacion, fitness):
+    ganadores = []
+    _seleccionado = -1
+
     for i in range(2):
-        a1 = random.randrange(1, poblacion)
-        a2 = random.randrange(1, poblacion)
-        bandera = True
-        while bandera:
-            if a1 == a2:
-                a2 = random.randrange(1, poblacion)
-                a1 = random.randrange(1, poblacion)
-            else:
-                bandera = False
-        aa1 = valores[a1]
-        aa2 = valores[a2]
-        if aa1 < aa2:
-            Ganadores.append(a1)
+        _isDifferent = False
+
+        while not _isDifferent:
+            _cand1 = random.randrange(poblacion)
+            _cand2 = random.randrange(poblacion)
+
+            if _cand1 is not _cand2 and _cand1 is not _seleccionado and _cand2 is not _seleccionado:
+                _isDifferent = True
+
+        if fitness[_cand1] < fitness[_cand2]:
+            ganadores.append(_cand1)
         else:
-            Ganadores.append(a2)
-    return Ganadores
+            ganadores.append(_cand2)
+        _seleccionado = ganadores[0]
+
+    return ganadores
 
 
-# cruce
-def cruce(Ganadores, matriz, alelos, destino):
-    alelos = alelos+1
+# DOCUMENTATION: Funcion de cruce para obtener los 2 hijos a partir de los
+#  padres
+def cruce(poblacion, posPadres, ciudades):
     hijos = []
-    hijo = []
-    Ganadores[0] = Ganadores[0] - 1
-    Ganadores[1] = Ganadores[1] - 1
-    a1 = random.randrange(1, alelos)
-    ba1 = True
-    while ba1:
-        if a1 == 0 or a1 == alelos:
-            a1 = random.randrange(1, alelos)
+
+    posRandom = random.randrange(ciudades)
+
+    for i in range(2):
+        hijo = []
+        _places1 = poblacion[posPadres[0]].copy()
+        _places2 = poblacion[posPadres[1]].copy()
+
+        if i is 0:
+            for j in range(posRandom):
+                hijo.append(_places1[j])
+                _places2.remove(_places1[j])
+            hijo.extend(_places2)
         else:
-            ba1 = False
-    # print('Alelo donde se segmenta: ',a1)
-    ax1 = a1
-    for j in range(2):
-        for i in range(a1):
-            hijo.append((matriz[Ganadores[j]][i]))
-        for m in range(alelos):
-            if j == 0:
-                a = hijo.count(matriz[Ganadores[1]][m])
-                if a == 0:
-                    hijo.insert(ax1, matriz[Ganadores[1]][m])
-                ax1 = ax1 + 1
-            else:
-                a = hijo.count(matriz[Ganadores[0]][m])
-                if a == 0:
-                    hijo.insert(ax1, matriz[Ganadores[0]][m])
-                ax1 = ax1 + 1
-        hijo.append(destino)
+            for j in range(posRandom):
+                hijo.append(poblacion[posPadres[i]][j])
+                _places1.remove(_places2[j])
+            hijo.extend(_places1)
+
         hijos.append(hijo)
-        hijo = hijo * 0
-        ax1 = a1
+
     return hijos
 
 
-# mutacion
-def mutacion_un_hijo(hijo, alelos):
-    alelos = alelos+1
-    r1 = random.randrange(alelos)
-    r2 = random.randrange(alelos)
-    br1 = True
-    while br1:
-        if r1 == 0 or r1 == alelos:
-            r1 = random.randrange(alelos)
-        else:
-            br1 = False
-    br2 = True
-    while br2:
-        if r2 == 0 or r2 == alelos:
-            r2 = random.randrange(alelos)
-        else:
-            br2 = False
+def mutacion(hijos, ciudades):
+    _pos1 = random.randrange(1, ciudades)
+    _isDifferent = False
+
+    while not _isDifferent:
+        _pos2 = random.randrange(1, ciudades)
+
+        if _pos1 is not _pos2:
+            _isDifferent = True
+
     for i in range(2):
-        G1 = hijo[i][r1]
-        G2 = hijo[i][r2]
-        hijo[i][r1] = G2
-        hijo[i][r2] = G1
-    return hijo
+        aux = hijos[i][_pos1]
+        hijos[i][_pos1] = hijos[i][_pos2]
+        hijos[i][_pos2] = aux
 
 
-# selecion directa
-def selecciondirecta(Ppadres, hijos, fitnes, fitneshijos, matriz):
-    ax = []
-    Ppadres[0] = Ppadres[0] - 1
-    Ppadres[1] = Ppadres[1] - 1
+def seleccionDirecta(poblacion, posPadres, fitness, hijos, fitnessHijos):
+    mejores = []
+    _familia = []
+    _fitness = fitness.copy()
+    _poblacion = poblacion.copy()
+    _fitnessHijos = fitnessHijos.copy()
+    _hijos = hijos.copy()
+
     for i in range(2):
         for j in range(2):
-            if i == 0:
-                ax.append([fitnes[Ppadres[j]], "p"+str(j)])
+            if i is 0:
+                _familia.append([_fitness[posPadres[j]], _poblacion[posPadres[j]]])
             else:
-                ax.append([fitneshijos[j], "h"+str(j)])
-    # print(ax)
-    ax.sort()
-    # print(ax)
-    mejor1 = ax[0]
-    mejor2 = ax[1]
-    if mejor2[1] == 'p0':
-        matriz[Ppadres[1]] = matriz[Ppadres[0]]
-    elif mejor1[1] == 'p1':
-        matriz[Ppadres[0]] = matriz[Ppadres[1]]
-    if mejor1[1] == 'h0' or mejor2[1] == 'h0':
-        matriz[Ppadres[0]] = hijos[0]
-    elif mejor1[1] == 'h1' or mejor2[1] == 'h1':
-        matriz[Ppadres[1]] = hijos[1]
-    return matriz
+                _familia.append([_fitnessHijos[j], _hijos[j]])
 
+    _familia.sort()
 
-# seleccion
-def seleccion(padres, hijos, matriz, alelos, lc):
-    # Insertar padres e hijos a individuos
-    padres[0] = padres[0] - 1
-    padres[1] = padres[1] - 1
-    dk = []
-    individuo = hijos
     for i in range(2):
-        individuo.append(matriz[padres[i]])
-    valor = valoracion(individuo, 4, alelos, lc)  # Fitness
-    # Se busca al ganador
-    ganador = 0
-    contador = 0
-    for i in range(4):
-        if valor[ganador] > valor[i]:
-            ganador = i
-    a = 0  # Ganador 2
-    for m in range(4):
-        x = individuo[ganador]
-        if ganador == m:
-            dk.append(0)
-        else:
-            for i in range(alelos):
-                if x[i] != individuo[m][i]:
-                    contador = contador + 1
-            dk.append(contador)
-        if dk[a] < dk[m]:
-            a = m
-            # 3 = p2
-            # 2 = p1
-    if ganador == 3:
-        if a == 2 or a == 3:
-            pass
-        elif ganador == 2:
-            matriz[padres[0]] = individuo[a]
-    elif ganador == 0 or ganador == 1:
-        matriz[padres[0]] = individuo[ganador]
-        if a == 0 or a == 1:
-            matriz[padres[1]] = individuo[a]
-    return matriz
+        mejores.append(_familia[i])
+
+    return mejores
 
 
-# random cidudad
-def ciudades(nc):
-    x = [i for i in range(1, nc)]
-    y = [i for i in range(1, nc)]
-    shuffle(x)
-    shuffle(y)
-    lista = []
-    for i in range(nc - 1):
-        lista.append([x[i], y[i]])
-    print(lista)
+def remplazo(poblacion, posPadres, fitness, mejores):
+    for i in range(2):
+        poblacion[posPadres[i]] = mejores[i][1]
+        fitness[posPadres[i]] = mejores[i][0]
 
-    return lista
 
+def mejor(poblacion, fitness):
+    mejor = []
+    aux = []
+    _poblacion = poblacion.copy()
+    _fitness = fitness.copy()
+
+    for i in range(len(poblacion)):
+        aux.append([_fitness[i], _poblacion[i], i])
+
+    aux.sort()
+    mejor = aux[0]
+    return mejor
