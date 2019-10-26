@@ -2,19 +2,29 @@ import random
 import tkinter as tk
 from time import time
 from tkinter import *  # Carga módulo tk (widgets estándar)
-from tkinter import ttk  # Carga ttk (para widgets nuevos 8.5+)
-
+from tkinter import ttk, messagebox  # Carga ttk (para widgets nuevos 8.5+)
 from pip._vendor.distlib.compat import raw_input
-
 import Funciones
 import Grafica
+import logging
+import threading
 
 
-class Aplicacion():
+logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(threadName)-s) %(message)s')
+
+
+
+
+
+class Aplicacion:
     def __init__(self):
-        # <---------- VARIABLES ---------->
-        self.isReady = False
+        Hilo_Ventana = threading.Thread(name="HVentana", target=self.run)
+        Hilo_Ventana.start()
+        Hilo_Ventana.join()
 
+    def run(self):
+        # <---------- VARIABLES Hilos ---------->
+        self.isReady = False
         # <---------- UI ---------->
         self.ventana = Tk()
         self.ventana.geometry('600x320')
@@ -24,6 +34,7 @@ class Aplicacion():
         # <---------- TABS ---------->
         tab_control = ttk.Notebook(self.ventana)
         home = ttk.Frame(tab_control)
+
         tab_control.add(home, text="Home")
         tab_control.pack(expand=1, fill='both')
 
@@ -45,7 +56,7 @@ class Aplicacion():
 
         # <---------- BUTTON ---------->
         self.btnPoblacion = ttk.Button(home, text="CREAR POBLACION", command=self.ciudades).place(x=100, y=250)
-        self.btnIniciar = ttk.Button(home, text="INICIAR", command=self.algoritmo).place(x=250, y=250)
+        self.btnIniciar = ttk.Button(home, text="INICIAR", command=self.inicio).place(x=250, y=250)
         self.btnSalir = ttk.Button(home, text="SALIR", command=self.ventana.destroy).place(x=350, y=250)
 
         # <---------- POSITION ---------->
@@ -69,13 +80,21 @@ class Aplicacion():
         # <---------- INITIAL DATA ---------->
         self.txtNumCiudades.insert(0, "test")
         self.txtNumIndividuos.insert(0, 1000)
-        self.txtRepeticiones.insert(0, 10000)
+        self.txtRepeticiones.insert(0, 1000)
         self.txtProbCruce.insert(0, 0.85)
         self.txtProbMut.insert(0, 0.01)
         self.txtOrigen.insert(0, 0)
         self.txtProbCruce.config(state=tk.DISABLED)
         self.txtProbMut.config(state=tk.DISABLED)
         self.ventana.mainloop()
+
+    def inicio(self):
+        Hilo_Algo = threading.Thread(name="HAlgoritmo", target=self.algoritmo)
+        Hilo_Algo.start()
+
+    def respuesta(self):
+        self.resp = messagebox.askyesno(message="¿Desea continuar?", title="Título")
+
 
     def algoritmo(self):
         if self.isReady:
@@ -85,8 +104,7 @@ class Aplicacion():
             _repeticiones = int(self.txtRepeticiones.get())
             _mejorGrafica = [-1]
             _ciudadesText = self.txtNumCiudades.get()
-
-            print("Iniciando Algoritmo...")
+            logging.info("Iniciando Algoritmo...")
             start_time = time()
 
             Poblacion = []
@@ -95,7 +113,7 @@ class Aplicacion():
                 Poblacion.append(Funciones.individuo(_ciudades, _origen))
 
             for ind in range(_individuos):
-                print("Individuo ", (ind+1), ": ", Poblacion[ind])
+                print("Individuo ", (ind + 1), ": ", Poblacion[ind])
 
             Fitness = Funciones.evaluar(Poblacion, len(Poblacion), _ciudades, self.listaCiudades)
 
@@ -105,10 +123,10 @@ class Aplicacion():
             res = 'x'
 
             while isContinue:
-                print("Repeticion ", secuencia)
+                logging.info("Repeticion "+ str(secuencia))
 
                 PosPadres = Funciones.torneo(_individuos, Fitness)
-                print("Posiciones padres: ", PosPadres)
+                logging.info("Posiciones padres: "+ str(PosPadres))
 
                 _probCruce = float(self.txtProbCruce.get())
                 _probMut = float(self.txtProbMut.get())
@@ -122,7 +140,7 @@ class Aplicacion():
 
                 if round(random.random(), 3) <= _probMut:
                     Funciones.mutacion(Hijos, _ciudades)
-                    print("MUTACION AQUI")
+                    logging.debug("MUTACION AQUI")
 
                 FitnessHijos = Funciones.evaluar(Hijos, len(Hijos), _ciudades, self.listaCiudades)
 
@@ -131,8 +149,11 @@ class Aplicacion():
                 # TODO: Mejor de todos
 
                 if secuencia >= limite:
-                    res = int(raw_input("Desea continuar? si = 1"))
-                if res is 1:
+                    Hilo_respuesta = threading.Thread(name="HRespuesta", target=self.respuesta())
+                    Hilo_respuesta.start()
+                    res = self.resp
+                    logging.debug("respuesta "+str(res))
+                if res is True:
                     limite += _repeticiones
                     res = 'x'
                 elif res is not 'x':
@@ -146,7 +167,8 @@ class Aplicacion():
 
                 if _mejorGrafica[0] is not _mejor[0]:
                     _mejorGrafica = _mejor
-                    Grafica.grafica(1, _mejorGrafica[1], _mejorGrafica[0], secuencia, self.listaCiudades, (_ciudades+1), 15)
+                    Grafica.grafica(1, _mejorGrafica[1], _mejorGrafica[0], secuencia, self.listaCiudades,
+                                    (_ciudades + 1), 15)
 
                 secuencia += 1
 
@@ -192,7 +214,8 @@ class Aplicacion():
 
 
 def main():
-    Aplicacion()
+    app = Aplicacion()
+    app.run()
     return 0
 
 

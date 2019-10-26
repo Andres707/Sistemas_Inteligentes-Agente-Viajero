@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 
+
 def grafica(tipo=0, individuo=None, fitness=None, repeticion=None, ciudades=None, numCiudades=None, textSize=20):
     x = []
     y = []
@@ -22,11 +23,11 @@ def grafica(tipo=0, individuo=None, fitness=None, repeticion=None, ciudades=None
 
         figRecorrido = plt.figure()
         aux = figRecorrido.add_subplot(1, 1, 1)
-        #plt.title("Individuo: " + str(individuo) + " - Fitness: " + str(fitness))
+        # plt.title("Individuo: " + str(individuo) + " - Fitness: " + str(fitness))
         plt.title("Fitness: " + str(fitness))
         aux.plot(x, y, "-d", label="Repeticion " + str(repeticion))
         aux.legend(bbox_to_anchor=(1.05, 1), loc="upper left", borderaxespad=0)
 
-        for i in range(numCiudades -1):
+        for i in range(numCiudades - 1):
             aux.text(x[i], y[i], str(i), fontsize=textSize)
     plt.show()

@@ -53,6 +53,7 @@ def evaluar(poblacion, numIndividuos, ciudades, listaCiudades):
 
             _dist = round(math.sqrt((listaCiudades[_currentC][0] - listaCiudades[_nextC][0]) ** 2 +
                                     (listaCiudades[_currentC][1] - listaCiudades[_nextC][1]) ** 2), 2)
+            "{0:.2f}".format(_dist)
             _distancia += _dist
 
         fitness.append(_distancia)
