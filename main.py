@@ -3,17 +3,13 @@ import tkinter as tk
 from time import time
 from tkinter import *  # Carga módulo tk (widgets estándar)
 from tkinter import ttk, messagebox  # Carga ttk (para widgets nuevos 8.5+)
-from pip._vendor.distlib.compat import raw_input
 import Funciones
 import Grafica
 import logging
 import threading
-
-
+import statistics as stats
+# elitismo
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(threadName)-s) %(message)s')
-
-
-
 
 
 class Aplicacion:
@@ -34,9 +30,12 @@ class Aplicacion:
         # <---------- TABS ---------->
         tab_control = ttk.Notebook(self.ventana)
         home = ttk.Frame(tab_control)
+        config = ttk.Frame(tab_control)
 
         tab_control.add(home, text="Home")
         tab_control.pack(expand=1, fill='both')
+        tab_control.add(config, text="Config")
+        tab_control.pack(expand=1, fill="both")
 
         # <---------- LABEL ---------->
         lblNumCiudades = Label(home, text="Numero de Ciudades", fg='black')
@@ -45,6 +44,12 @@ class Aplicacion:
         lblProbCruce = Label(home, text="Prob. de Cruce", fg='black')
         lblProbMut = Label(home, text="Prob. de Mutacion", fg='black')
         lblOrigen = Label(home, text="Origen", fg='black')
+        lblParo = Label(config, text="Sistema de paro", fg='black')
+
+        # <---------- Radio Button ---------->
+        var = IntVar()
+        self.RNI = Radiobutton(config, text="No. Repeticiones sin cambio", variable=var, value=1)
+        self.RVR = Radiobutton(config, text="Desviacion estandar", variable=var, value=2)
 
         # <---------- TEXTBOX ---------->
         self.txtNumCiudades = ttk.Entry(home, justify=tk.LEFT)
@@ -72,6 +77,9 @@ class Aplicacion:
         self.txtProbMut.place(x=10, y=70)
         lblOrigen.place(x=150, y=50)
         self.txtOrigen.place(x=150, y=70)
+        lblParo.place(x=10, y=5)
+        self.RNI.place(x=10, y=25)
+        self.RVR.place(x=10, y=50)
 
         # <---------- RESULTS ---------->
         self.lblTiempo = Label(home, text="", fg='black').place(x=10, y=150)
@@ -95,8 +103,18 @@ class Aplicacion:
     def respuesta(self):
         self.resp = messagebox.askyesno(message="¿Desea continuar?", title="Título")
 
-
     def algoritmo(self):
+        """if self.RNI.getint(0) == 1:
+            logging.info("Numero de RE")
+            isContinue = True
+        elif self.RVR.getint(0) == 1:
+            logging.info("Desviacion")
+        else:
+            print(self.RVR.info)
+            isContinue = False
+            print("sin sistema de paro")"""
+        paro = 1
+        menores = []
         if self.isReady:
             _individuos = int(self.txtNumIndividuos.get())
             _origen = int(self.txtOrigen.get())
@@ -117,19 +135,19 @@ class Aplicacion:
 
             Fitness = Funciones.evaluar(Poblacion, len(Poblacion), _ciudades, self.listaCiudades)
 
-            isContinue = True
             secuencia = 1
             limite = _repeticiones
             res = 'x'
+            isContinue = True
 
             while isContinue:
-                logging.info("Repeticion "+ str(secuencia))
+                logging.info("Repeticion " + str(secuencia))
 
                 PosPadres = Funciones.torneo(_individuos, Fitness)
-                logging.info("Posiciones padres: "+ str(PosPadres))
+                logging.info("Posiciones padres: " + str(PosPadres))
 
                 _probCruce = float(self.txtProbCruce.get())
-                _probMut = float(self.txtProbMut.get())
+                _probMut = 1 / _ciudades
                 Hijos = []
 
                 if round(random.random(), 3) <= _probCruce:
@@ -148,16 +166,16 @@ class Aplicacion:
                 Funciones.remplazo(Poblacion, PosPadres, Fitness, Mejores)
                 # TODO: Mejor de todos
 
-                if secuencia >= limite:
-                    Hilo_respuesta = threading.Thread(name="HRespuesta", target=self.respuesta())
-                    Hilo_respuesta.start()
-                    res = self.resp
-                    logging.debug("respuesta "+str(res))
-                if res is True:
-                    limite += _repeticiones
-                    res = 'x'
-                elif res is not 'x':
-                    isContinue = False
+                # if secuencia >= limite:
+                #  Hilo_respuesta = threading.Thread(name="HRespuesta", target=self.respuesta())
+                # Hilo_respuesta.start()
+                # res = self.resp
+                # logging.debug("respuesta " + str(res))
+                # if res is True:
+                #   limite += _repeticiones
+                #  res = 'x'
+                # elif res is not 'x':
+                #   isContinue = False
 
                 _mejor = Funciones.mejor(Poblacion, Fitness)
 
@@ -169,6 +187,17 @@ class Aplicacion:
                     _mejorGrafica = _mejor
                     Grafica.grafica(1, _mejorGrafica[1], _mejorGrafica[0], secuencia, self.listaCiudades,
                                     (_ciudades + 1), 15)
+                menores.append(_mejor[0])
+                if len(menores) > 10000:
+                    if paro == 1:
+                        if menores.count(_mejor[0]) >= 1000:
+                            isContinue = False
+                            print(menores.count((_mejor[0])))
+                    elif paro == 2:
+                        desviacion = stats.pstdev(Fitness)
+                        print(desviacion)
+                        if desviacion <= 0.5:
+                            isContinue = False
 
                 secuencia += 1
 
@@ -214,8 +243,7 @@ class Aplicacion:
 
 
 def main():
-    app = Aplicacion()
-    app.run()
+    Aplicacion()
     return 0
 
 
